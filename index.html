@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>古川拓人のチャリ旅 - 横スクロールゲーム</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="gameContainer">
+      <canvas id="gameCanvas"></canvas>
+      <div id="ui">
+        <div id="titleScreen" class="screen">
+          <h1>古川拓人のチャリ旅</h1>
+          <p class="desktop-only">スペースキー / クリック / タップでジャンプ</p>
+          <p class="mobile-only">タップでジャンプ / 左右ボタンで加減速</p>
+          <p class="hint">障害物と穴を避けて進もう！</p>
+          <button id="openLeaderboardTitle" class="ui-button">
+            歴代トップスコア
+          </button>
+        </div>
+        <div id="gameOverScreen" class="screen hidden">
+          <h2>ゲームオーバー</h2>
+          <p>スコア: <span id="finalScore">0</span></p>
+          <p>最高スコア: <span id="highScore">0</span></p>
+          <p class="hint desktop-only">
+            スペースキー / クリック / タップでリトライ
+          </p>
+          <p class="hint mobile-only">タップでリトライ</p>
+          <button id="openLeaderboardGameOver" class="ui-button">
+            歴代トップスコア
+          </button>
+        </div>
+        <div id="leaderboardScreen" class="screen hidden">
+          <h2>歴代トップ30</h2>
+          <div id="leaderboardList" class="leaderboard-list"></div>
+          <button id="closeLeaderboard" class="ui-button">戻る</button>
+        </div>
+        <div id="nameEntryScreen" class="screen hidden">
+          <h2>ランキング入り！</h2>
+          <p>ニックネーム（20文字以内）</p>
+          <input
+            id="nicknameInput"
+            class="nickname-input"
+            type="text"
+            maxlength="20"
+          />
+          <button id="saveScoreButton" class="ui-button">登録する</button>
+        </div>
+        <div id="scoreDisplay">
+          距離: <span id="score">0</span>m
+          <span id="bestScoreDisplay" style="margin-left: 20px"
+            >ベスト: <span id="bestScore">0</span>m</span
+          >
+        </div>
+      </div>
+      <div id="touchControls">
+        <button id="controlLeft" class="touch-button" aria-label="減速">
+          ◀
+        </button>
+        <button id="controlRight" class="touch-button" aria-label="加速">
+          ▶
+        </button>
+      </div>
+    </div>
+    <div id="banner">
+      <a
+        href="https://onlineshop.docomo.ne.jp/special/sim-campaign?utm_source=furukawabicycle&utm_medium=free-display&utm_campaign=furukawabicycle_202601"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="docomo_banner.webp"
+          alt="ドコモ のりかえ(MNP)で最大20,000ポイント dポイント"
+        />
+      </a>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>
