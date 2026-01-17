@@ -123,7 +123,11 @@ let score = 0;
 let distanceTraveled = 0; // cameraXと同じ値
 let highScore = 0;
 let lastTime = 0;
-let lastTouchTime = 0;
+let swipeTouchId = null;
+let swipeStartX = 0;
+let swipeStartY = 0;
+let swipeMoved = false;
+let lastCanvasInputAt = 0;
 let shakeOffset = { x: 0, y: 0 };
 let shakeFrames = 0;
 let cameraX = 0;
@@ -941,10 +945,10 @@ function isOverlayBlocked() {
 
 function bindGlobalTap() {
     const handler = (e) => {
-        if (e.type === 'touchstart') {
-            lastTouchTime = Date.now();
-        } else if (Date.now() - lastTouchTime < 700) {
-            return;
+        if (e.pointerType === 'touch' && Date.now() - lastCanvasInputAt < 250) {
+            if (e.target && e.target.closest && e.target.closest('#gameContainer')) {
+                return;
+            }
         }
         if (e.target && e.target.closest && e.target.closest('#banner')) {
             return;
@@ -975,9 +979,9 @@ function bindGlobalTap() {
             resetGame();
         }
     };
-    document.addEventListener('pointerdown', handler, { passive: false });
-    document.addEventListener('touchstart', handler, { passive: false });
+    document.addEventListener('pointerup', handler, { passive: false });
 }
+
 
 function bindScreenTap(screenEl, handler) {
     if (!screenEl) {
@@ -991,6 +995,87 @@ function bindScreenTap(screenEl, handler) {
         handler();
     };
     screenEl.addEventListener('pointerup', onTap);
+}
+
+function setupSwipeControls() {
+    const SWIPE_THRESHOLD = 24;
+    const findTouch = (e) => {
+        if (swipeTouchId == null) {
+            return null;
+        }
+        for (const t of e.changedTouches) {
+            if (t.identifier === swipeTouchId) {
+                return t;
+            }
+        }
+        return null;
+    };
+
+    const onStart = (e) => {
+        if (gameState !== GAME_STATE.PLAYING) {
+            return;
+        }
+        if (isOverlayBlocked() || isNameEntryVisible()) {
+            return;
+        }
+        if (isInteractiveElement(e.target)) {
+            return;
+        }
+        if (e.target && e.target.closest && e.target.closest('#banner')) {
+            return;
+        }
+        const t = e.changedTouches[0];
+        if (!t) {
+            return;
+        }
+        swipeTouchId = t.identifier;
+        swipeStartX = t.clientX;
+        swipeStartY = t.clientY;
+        swipeMoved = false;
+        e.preventDefault();
+    };
+
+    const onMove = (e) => {
+        const t = findTouch(e);
+        if (!t) {
+            return;
+        }
+        const dx = t.clientX - swipeStartX;
+        const dy = t.clientY - swipeStartY;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > SWIPE_THRESHOLD) {
+            swipeMoved = true;
+            if (dx > 0) {
+                pressedKeys.add('ArrowRight');
+                pressedKeys.delete('ArrowLeft');
+            } else {
+                pressedKeys.add('ArrowLeft');
+                pressedKeys.delete('ArrowRight');
+            }
+        }
+        e.preventDefault();
+    };
+
+    const onEnd = (e) => {
+        const t = findTouch(e);
+        if (!t) {
+            return;
+        }
+        if (swipeMoved) {
+            pressedKeys.delete('ArrowRight');
+            pressedKeys.delete('ArrowLeft');
+        } else if (gameState === GAME_STATE.PLAYING) {
+            player.tryJump();
+        }
+        lastCanvasInputAt = Date.now();
+        swipeTouchId = null;
+        swipeMoved = false;
+        e.preventDefault();
+    };
+
+    canvas.addEventListener('touchstart', onStart, { passive: false });
+    canvas.addEventListener('touchmove', onMove, { passive: false });
+    canvas.addEventListener('touchend', onEnd, { passive: false });
+    canvas.addEventListener('touchcancel', onEnd, { passive: false });
 }
 
 function init() {
@@ -1029,23 +1114,9 @@ function init() {
     // イベントリスナー
     document.addEventListener('keydown', handleInput);
     document.addEventListener('keyup', handleInput);
-    canvas.addEventListener('click', handleInput);
-    canvas.addEventListener('touchstart', handleInput, { passive: false });
     setupTouchControls();
+    setupSwipeControls();
     bindGlobalTap();
-
-    const titleScreen = document.getElementById('titleScreen');
-    const gameOverScreen = document.getElementById('gameOverScreen');
-    bindScreenTap(titleScreen, () => {
-        if (gameState === GAME_STATE.TITLE) {
-            startGame();
-        }
-    });
-    bindScreenTap(gameOverScreen, () => {
-        if (gameState === GAME_STATE.GAME_OVER) {
-            resetGame();
-        }
-    });
 
     document.getElementById('openLeaderboardTitle')?.addEventListener('click', showLeaderboardScreen);
     document.getElementById('openLeaderboardGameOver')?.addEventListener('click', showLeaderboardScreen);
