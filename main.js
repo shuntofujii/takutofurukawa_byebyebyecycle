@@ -123,6 +123,7 @@ let score = 0;
 let distanceTraveled = 0; // cameraXと同じ値
 let highScore = 0;
 let lastTime = 0;
+let lastTouchTime = 0;
 let shakeOffset = { x: 0, y: 0 };
 let shakeFrames = 0;
 let cameraX = 0;
@@ -695,6 +696,7 @@ function resizeCanvas() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
+
 // ============================================
 // タッチコントロール
 // ============================================
@@ -913,6 +915,84 @@ function pickHeadImage() {
 // ============================================
 // 初期化
 // ============================================
+function isInteractiveElement(target) {
+    if (!target || !target.closest) {
+        return false;
+    }
+    return Boolean(target.closest('button, input, textarea, select, a'));
+}
+
+function isNameEntryVisible() {
+    const nameEntryScreen = document.getElementById('nameEntryScreen');
+    return Boolean(nameEntryScreen && !nameEntryScreen.classList.contains('hidden'));
+}
+
+function isOverlayBlocked() {
+    const leaderboardScreen = document.getElementById('leaderboardScreen');
+    const nameEntryScreen = document.getElementById('nameEntryScreen');
+    if (leaderboardScreen && !leaderboardScreen.classList.contains('hidden')) {
+        return true;
+    }
+    if (nameEntryScreen && !nameEntryScreen.classList.contains('hidden')) {
+        return true;
+    }
+    return false;
+}
+
+function bindGlobalTap() {
+    const handler = (e) => {
+        if (e.type === 'touchstart') {
+            lastTouchTime = Date.now();
+        } else if (Date.now() - lastTouchTime < 700) {
+            return;
+        }
+        if (e.target && e.target.closest && e.target.closest('#banner')) {
+            return;
+        }
+        if (isNameEntryVisible()) {
+            if (e.target && e.target.closest && e.target.closest('#nameEntryScreen')) {
+                return;
+            }
+            if (isInteractiveElement(e.target)) {
+                return;
+            }
+            e.preventDefault();
+            closeNameEntry();
+            return;
+        }
+        if (isInteractiveElement(e.target)) {
+            return;
+        }
+        if (isOverlayBlocked()) {
+            return;
+        }
+        e.preventDefault();
+        if (gameState === GAME_STATE.TITLE) {
+            startGame();
+        } else if (gameState === GAME_STATE.PLAYING) {
+            player.tryJump();
+        } else if (gameState === GAME_STATE.GAME_OVER) {
+            resetGame();
+        }
+    };
+    document.addEventListener('pointerdown', handler, { passive: false });
+    document.addEventListener('touchstart', handler, { passive: false });
+}
+
+function bindScreenTap(screenEl, handler) {
+    if (!screenEl) {
+        return;
+    }
+    const onTap = (e) => {
+        if (isInteractiveElement(e.target)) {
+            return;
+        }
+        e.preventDefault();
+        handler();
+    };
+    screenEl.addEventListener('pointerup', onTap);
+}
+
 function init() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
@@ -952,6 +1032,20 @@ function init() {
     canvas.addEventListener('click', handleInput);
     canvas.addEventListener('touchstart', handleInput, { passive: false });
     setupTouchControls();
+    bindGlobalTap();
+
+    const titleScreen = document.getElementById('titleScreen');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    bindScreenTap(titleScreen, () => {
+        if (gameState === GAME_STATE.TITLE) {
+            startGame();
+        }
+    });
+    bindScreenTap(gameOverScreen, () => {
+        if (gameState === GAME_STATE.GAME_OVER) {
+            resetGame();
+        }
+    });
 
     document.getElementById('openLeaderboardTitle')?.addEventListener('click', showLeaderboardScreen);
     document.getElementById('openLeaderboardGameOver')?.addEventListener('click', showLeaderboardScreen);

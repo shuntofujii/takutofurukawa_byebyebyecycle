@@ -11,6 +11,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-height: 100svh;
     overflow: hidden;
     color: #fff;
 }
@@ -49,6 +50,9 @@ body {
     border: 3px solid #fff;
     box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
     pointer-events: auto;
+    max-width: min(520px, 90vw);
+    max-height: 90%;
+    overflow-y: auto;
 }
 
 .screen.hidden {
@@ -176,7 +180,7 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
     display: none;
     justify-content: space-between;
     align-items: center;
@@ -211,6 +215,9 @@ body {
     width: 100%;
     background: rgba(0, 0, 0, 0.8);
     padding: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    padding-left: calc(10px + env(safe-area-inset-left));
+    padding-right: calc(10px + env(safe-area-inset-right));
     text-align: center;
     z-index: 1000;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
@@ -322,4 +329,49 @@ body {
 
 .nickname-input:focus {
     border-color: #FFD700;
+}
+
+@media (max-width: 480px) {
+    .screen {
+        padding: 20px 16px;
+    }
+
+    .screen h1 {
+        font-size: 26px;
+        letter-spacing: 1px;
+    }
+
+    .screen h2 {
+        font-size: 22px;
+    }
+
+    .screen p {
+        font-size: 14px;
+    }
+
+    #scoreDisplay {
+        font-size: 16px;
+    }
+
+    .ui-button {
+        font-size: 14px;
+        padding: 8px 14px;
+    }
+
+    .touch-button {
+        width: 56px;
+        height: 56px;
+        font-size: 22px;
+    }
+}
+
+@media (orientation: landscape) {
+    #banner {
+        padding-top: 6px;
+        padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    }
+
+    #banner img {
+        max-height: 60px;
+    }
 }
