@@ -1259,7 +1259,12 @@ function init() {
     // キャンバスサイズ設定（DPR対応）
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('blur', () => pressedKeys.clear());
+    window.addEventListener('blur', () => {
+        pressedKeys.clear();
+        if (gameState === GAME_STATE.PLAYING) {
+            gameOver();
+        }
+    });
 
     // ランキング読み込み
     loadLeaderboard().then(() => {

@@ -168,6 +168,64 @@ body {
     color: #FFD700;
 }
 
+#itemGuide {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    max-width: 240px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    font-size: 12px;
+    line-height: 1.4;
+    color: #fff;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+}
+
+.ui-panel-title {
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 6px;
+    color: #FFD700;
+}
+
+.item-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0;
+}
+
+.item-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+}
+
+.item-dot.swap {
+    background: #3FA7FF;
+}
+
+.item-dot.slow {
+    background: #47D16D;
+}
+
+.item-dot.fast {
+    background: #9B59FF;
+}
+
+.item-dot.gold {
+    background: #F5C542;
+}
+
+.item-text {
+    white-space: nowrap;
+}
+
 #bestScoreDisplay {
     color: #FFF;
 }
@@ -274,6 +332,13 @@ body {
         font-size: 18px;
     }
 
+    #itemGuide {
+        top: 10px;
+        right: 10px;
+        max-width: 200px;
+        font-size: 11px;
+    }
+
     #banner img {
         max-height: 90px;
     }
@@ -351,6 +416,11 @@ body {
 
     #scoreDisplay {
         font-size: 16px;
+    }
+
+    #itemGuide {
+        font-size: 10px;
+        max-width: 180px;
     }
 
     .ui-button {
