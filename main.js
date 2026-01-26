@@ -147,6 +147,8 @@ let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeMoved = false;
 let lastCanvasInputAt = 0;
+let nameEntrySpaceCount = 0;
+let nameEntrySpaceDeadline = 0;
 let shakeOffset = { x: 0, y: 0 };
 let shakeFrames = 0;
 let cameraX = 0;
@@ -1016,6 +1018,8 @@ function showNameEntry(score) {
 function closeNameEntry() {
     const nameEntry = document.getElementById('nameEntryScreen');
     nameEntry?.classList.add('hidden');
+    nameEntrySpaceCount = 0;
+    nameEntrySpaceDeadline = 0;
 }
 
 async function submitScore() {
@@ -1126,14 +1130,6 @@ function bindGlobalTap() {
             return;
         }
         if (isNameEntryVisible()) {
-            if (e.target && e.target.closest && e.target.closest('#nameEntryScreen')) {
-                return;
-            }
-            if (isInteractiveElement(e.target)) {
-                return;
-            }
-            e.preventDefault();
-            closeNameEntry();
             return;
         }
         if (isInteractiveElement(e.target)) {
@@ -1326,6 +1322,28 @@ function handleInput(e) {
             pressedKeys.delete(e.code);
         }
         e.preventDefault();
+        return;
+    }
+
+    if (isNameEntryVisible()) {
+        if (isInteractiveElement(e.target)) {
+            return;
+        }
+        if (e.type === 'keydown' && e.code === 'Space') {
+            const now = Date.now();
+            if (now > nameEntrySpaceDeadline) {
+                nameEntrySpaceCount = 0;
+            }
+            nameEntrySpaceCount += 1;
+            nameEntrySpaceDeadline = now + 1500;
+            e.preventDefault();
+            if (nameEntrySpaceCount >= 2) {
+                nameEntrySpaceCount = 0;
+                nameEntrySpaceDeadline = 0;
+                closeNameEntry();
+                resetGame();
+            }
+        }
         return;
     }
 
